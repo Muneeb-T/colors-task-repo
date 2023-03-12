@@ -1,58 +1,45 @@
-import React, { useEffect, useState } from "react";
-import "./Home.css";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import './Home.css';
+import axios from 'axios';
 
 const Home = () => {
   const [colors, setColors] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
-  const [notFount, setNotFount] = useState([]);
+  const [notFount, setNotFount] = useState(false);
 
   useEffect(() => {
     axios
       .get(
-        "https://raw.githubusercontent.com/NishantChandla/color-test-resources/main/xkcd-colors.json"
+        'https://raw.githubusercontent.com/NishantChandla/color-test-resources/main/xkcd-colors.json',
       )
       .then((response) => {
-        console.log(response, "hhhhhh");
         setColors(response.data.colors);
       });
   }, []);
-  let str = "";
-  let name2 = "";
 
   useEffect(() => {
-    // setNotFount(false);
-    const filterColors = colors.filter((color) =>
-      color.hex.toLowerCase().includes(search.toLowerCase())
-    );
-    setNotFount(filterColors)
+    setNotFount(false);
+    if (search.length) {
+      const filterColors = colors.filter((color) =>
+        color.hex.toLowerCase().includes(search.toLowerCase()),
+      );
 
-    console.log(filterColors, "nnnnnnnnn");
-
-    const text = filterColors[0]?.color;
-    console.log(text, "mmm");
-    const name1 = text?.split(" ");
-    if (name1) {
-      name2 = name1[1];
+      if (filterColors.length) {
+        const text = filterColors[0]?.color;
+        const colorName = text?.split(' ');
+        if (colorName && colorName[1]) {
+          const nameFilter = colors.filter((el) =>
+            el.color.includes(colorName[1].toLowerCase()),
+          );
+          if (nameFilter && nameFilter.length) {
+            setSearchResult(nameFilter);
+          }
+        }
+      } else {
+        setNotFount(true);
+      }
     }
-    console.log(name2, "ggggggggg");
-
-    const nameFilter = colors.filter((el) =>
-      el.color.includes(name2.toLowerCase())
-    );
-
-    if (nameFilter && nameFilter.length) {
-      setSearchResult(nameFilter);
-    } else {
-      // setNotFount(true);
-    }
-
-    // if (filterColors) {
-    //   setSearchResult(filterColors);
-    // } else {
-    //   setNotFount(false);
-    // }
   }, [search]);
 
   const handleSearch = (e) => {
@@ -80,52 +67,55 @@ const Home = () => {
         </div>
       </div>
 
-      {/* {notFount && <p style={{ color: "red" }}>invalid color code</p>} */}
-      <div className="table">
-        <table className="tb" style={{ width: "80%" }}>
-          <thead>
-            <tr>
-              <th>Color</th>
-              <th>Name</th>
-              <th>Hex</th>
-              <th>RGB</th>
-            </tr>
-          </thead>
-          <tbody>
-            {notFount.length!= 0
-              ? search.length
-                ? searchResult.map((color) => (
-                    <tr key={color.hex}>
-                      <td
-                        style={{
-                          backgroundColor: color.color,
-                          width: "50px",
-                          height: "50px",
-                        }}
-                      ></td>
-                      <td>{color.name}</td>
-                      <td>{color.hex}</td>
-                      <td>{color.color}</td>
-                    </tr>
-                  ))
-                : colors.map((color) => (
-                    <tr key={color.hex}>
-                      <td
-                        style={{
-                          backgroundColor: color.color,
-                          width: "50px",
-                          height: "50px",
-                        }}
-                      ></td>
-                      <td>{color.name}</td>
-                      <td>{color.hex}</td>
-                      <td>{color.color}</td>
-                    </tr>
-                  ))
-              : <p className="pa">Invalid Color code</p>}
-          </tbody>
-        </table>
-      </div>
+      {notFount ? (
+        <p style={{ color: 'red' }}>invalid color code</p>
+      ) : (
+        <>
+          <div className="table">
+            <table
+              className="tb"
+            >
+              <thead>
+                <tr>
+                  <th>Color</th>
+                  <th>Name</th>
+                  <th>Hex</th>
+                  <th>RGB</th>
+                </tr>
+              </thead>
+              <tbody>
+                {search.length
+                  ? searchResult.map((color) => (
+                      <tr key={color.hex}>
+                        <td
+                          style={{
+                            backgroundColor: color.color,
+                            width: '50px',
+                            height: '50px',
+                          }}></td>
+                        <td>{color.name}</td>
+                        <td>{color.hex}</td>
+                        <td>{color.color}</td>
+                      </tr>
+                    ))
+                  : colors.map((color) => (
+                      <tr key={color.hex}>
+                        <td
+                          style={{
+                            backgroundColor: color.color,
+                            width: '50px',
+                            height: '50px',
+                          }}></td>
+                        <td>{color.name}</td>
+                        <td>{color.hex}</td>
+                        <td>{color.color}</td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 };
